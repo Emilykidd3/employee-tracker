@@ -1,19 +1,27 @@
-CREATE TABLE department (
-    id INTEGER PRIMARY KEY,
+DROP DATABASE IF EXISTS employeeDB;
+
+CREATE DATABASE employeeDB;
+
+USE employeeDB;
+
+CREATE TABLE departments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(30) NOT NULL
 );
 
-CREATE TABLE role(
-    id INTEGER PRIMARY KEY,
+CREATE TABLE roles (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(30) NOT NULL,
     salary DECIMAL NOT NULL,
-    department_id INTEGER NOT NULL,
+    department_id INT NOT NULL,
+    CONSTRAINT fk_departments FOREIGN KEY (department_id) REFERENCES departments (id)
 );
 
-CREATE TABLE employee(
-    id INTEGER PRIMARY KEY,
+CREATE TABLE employees (
+    id INT PRIMARY KEY AUTO_INCREMENT,
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
-    role_id INTEGER NOT NULL,
-    manager_id INTEGER
-)
+    role_id INT NOT NULL,
+    manager_id INT,
+    CONSTRAINT fk_employees FOREIGN KEY (manager_id) REFERENCES employees (id) ON DELETE SET NULL
+);
