@@ -138,7 +138,7 @@ const addRole = function () {
         console.log(row);
         return {
           name: row.name,
-          id: row.id
+          value: row.id
         };
       });
       console.log(deptList);
@@ -146,32 +146,41 @@ const addRole = function () {
         .prompt([
           {
             type: "input",
-            name: "roleName",
-            message: "Enter a name for your new role",
+            name: "title",
+            message: "Enter a name for your new role"
           },
           {
             type: "input",
-            name: "roleSalary",
-            message: "Enter a salary for your new role",
+            name: "salary",
+            message: "Enter a salary for your new role"
           },
           {
             type: "list",
-            name: "roleDept",
+            name: "department_id",
             message: "Which department is your new role?",
-            choices: deptList,
+            choices: deptList
           },
         ])
-        .then((res) => {
-          connection.promise().query("INSERT INTO roles SET ?"),
-            {
-              title: res.roleName,
-              salary: res.roleSalary,
-              department_id: res.roleDept
-            }
+        .then((newRole) => {
+          console.log(newRole);
+          connection.promise().query('INSERT INTO roles SET ?',
+          newRole)
         })
-        // .then(() => startQuestion());
+        .then(() => startQuestion());
     });
 };
+
+// get list of roles
+const getRoles = function() {
+  connection.promise().query('SELECT name FROM roles')
+  .then((rows) => {
+    const rolesList = rows.map((row) => {
+      console.log(row);
+      return 
+    })
+  })
+}
+
 
 // if add an employee is chosen
 const addEmployee = function () {
