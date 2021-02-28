@@ -135,13 +135,11 @@ const addRole = function () {
     .query("SELECT name, id FROM departments")
     .then((rows) => {
       const deptList = rows[0].map((row) => {
-        console.log(row);
         return {
           name: row.name,
           value: row.id
         };
       });
-      console.log(deptList);
       inquirer
         .prompt([
           {
@@ -159,7 +157,7 @@ const addRole = function () {
             name: "department_id",
             message: "Which department is your new role?",
             choices: deptList
-          },
+          }
         ])
         .then((newRole) => {
           console.log(newRole);
@@ -170,47 +168,89 @@ const addRole = function () {
     });
 };
 
-// get list of roles
-const getRoles = function() {
-  connection.promise().query('SELECT name FROM roles')
-  .then((rows) => {
-    const rolesList = rows.map((row) => {
-      console.log(row);
-      return 
-    })
-  })
-}
+// let roleArr = [];
+// const listOfRoles = function() {
+//   connection 
+//     .promise()
+//     .query('SELECT title FROM roles')
+//     .then((rows) => {
+//       const roleList = row[0].map((row) => {
+//         roleArr.push({
+//           value: row.title
+//         })
+//       })
+//     })
+// }
 
+// let empArr = [];
+// const listOfEmps = function() {
+//   connection 
+//     .promise()
+//     .query('SELECT first_name, id FROM employees')
+//     .then((rows) => {
+//       const empList = row[0].map((row) => {
+//         empArr.push({
+//           name: row.first_name,
+//           value: row.id
+//         })
+//       })
+//     })
+// }
 
 // if add an employee is chosen
 const addEmployee = function () {
-  inquirer.prompt([
-    {
-      type: "input",
-      name: "employeeFirstName",
-      message: "Enter the employee's first name",
-    },
-    {
-      type: "input",
-      name: "employeeLastName",
-      message: "Enter the employee's last name",
-    },
-    // should this be multiple choice??
-    {
-      type: "list",
-      name: "employeeRole",
-      message: "Choose a role for the employee",
-      choices: "",
-    },
-    // should this be multiple choice?
-    {
-      type: "list",
-      name: "employeeManager",
-      message: "Choose the employee's manager",
-      choices: "",
-    },
-  ]);
-};
+  connection 
+    .promise()
+    .query("SELECT title, id FROM roles")
+    .then((rows) => {
+      const roleList = rows[0].map((row) => {
+        return {
+          name: row.title,
+          value: row.id
+        };
+      })
+      // .query("SELECT first_name, id FROM employees")
+      // .then((rows) => {
+      //   const empList = rows[0].map((row) => {
+      //     return {
+      //       name: row.first_name,
+      //       value: row.id
+      //     };
+      //   });
+      inquirer.prompt([
+        {
+          type: "input",
+          name: "first_name",
+          message: "Enter the employee's first name",
+        },
+        {
+          type: "input",
+          name: "last_name",
+          message: "Enter the employee's last name",
+        },
+        {
+          type: "list",
+          name: "role_id",
+          message: "Choose a role for the employee",
+          choices: roleList
+        },
+        // {
+        //   type: "list",
+        //   name: "manager_id",
+        //   message: "Choose the employee's manager",
+        //   choices: empList
+        // }
+      ])
+      .then((newEmp) => {
+        console.log(newEmp);
+        connection.promise().query('INSERT INTO employees SET ?',
+        newEmp)
+      })
+      .then(() => startQuestion());
+    })
+  }
+  // );
+// };
 
 // if update an employee is chosen
 const updateEmployee = function () {
