@@ -77,6 +77,7 @@ const startQuestion = function () {
 };
 
 // if view all depts is chosen
+// shows dept and id FUNCTION DONE
 const viewAllDepts = function () {
   connection
     .promise()
@@ -89,10 +90,11 @@ const viewAllDepts = function () {
 };
 
 // if view all roles is chosen
+// NEED TO JOIN TO SHOW DEPT?? IS THIS GOOD?!
 const viewAllRoles = function () {
   connection
     .promise()
-    .query("SELECT * FROM roles")
+    .query("SELECT id, title, salary, department FROM roles LEFT JOIN (select name as department from departments) departments ON roles.department_id = roles.id")
     .then(([rows, fields]) => {
       console.table(rows);
     })
@@ -100,6 +102,7 @@ const viewAllRoles = function () {
 };
 
 // if view all employees is chosen
+// NEED TO JOIN TO SHOW JOB TITLE, DEPT, SALARY, AND MANAGER
 const viewAllEmployees = function () {
   connection
     .promise()
@@ -111,6 +114,7 @@ const viewAllEmployees = function () {
 };
 
 // if add a department is chosen
+// FUNCTION DONE
 const addDept = function () {
   inquirer
     .prompt([
@@ -129,6 +133,7 @@ const addDept = function () {
 };
 
 // if add a role is chosen
+// FUNCTION DONE
 const addRole = function () {
   connection
     .promise()
@@ -197,6 +202,7 @@ const addRole = function () {
 // }
 
 // if add an employee is chosen
+// NEED TO ADD DYNAMIC CHOICES FOR LAST Q
 const addEmployee = function () {
   connection
     .promise()
@@ -252,6 +258,8 @@ const addEmployee = function () {
 // };
 
 // if update an employee is chosen
+// NEED TO ADD DYNAMIC CHOICES FOR SECOND Q
+// FIX UPDATE FUNCTION
 const updateEmployee = function () {
   connection
     .promise()
@@ -281,16 +289,17 @@ const updateEmployee = function () {
         ])
         .then((updateRole) => {
           console.log(updateRole);
-          connection.promise().query(
-            "UPDATE employees SET ? WHERE ?",
-            [{
-              role_id: 1,
-            },
-            {
-              id: updateRole.id,
-            }]
-          )
-          .then(() => startQuestion());
+          connection
+            .promise()
+            .query("UPDATE employees SET ? WHERE ?", [
+              {
+                role_id: 1,
+              },
+              {
+                id: updateRole.id,
+              },
+            ])
+            .then(() => startQuestion());
         });
     });
 };
