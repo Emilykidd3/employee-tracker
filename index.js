@@ -94,7 +94,8 @@ const viewAllDepts = function () {
 const viewAllRoles = function () {
   connection
     .promise()
-    .query("SELECT id, title, salary, department FROM roles LEFT JOIN (select name as department from departments) departments ON roles.department_id = roles.id")
+    .query("SELECT roles.id, roles.title, roles.salary, departments.name AS department FROM roles LEFT JOIN  departments ON roles.department_id = departments.id")
+    //  (select name as department from departments) id, title, salary, department
     .then(([rows, fields]) => {
       console.table(rows);
     })
@@ -102,11 +103,11 @@ const viewAllRoles = function () {
 };
 
 // if view all employees is chosen
-// NEED TO JOIN TO SHOW JOB TITLE, DEPT, SALARY, AND MANAGER
+// NEED TO JOIN TO SHOW MANAGER HOW?!?!
 const viewAllEmployees = function () {
   connection
     .promise()
-    .query("SELECT * FROM employees")
+    .query("SELECT employees.id, employees.first_name, employees.last_name, roles.title AS job_title, roles.salary, departments.name AS department FROM employees LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id")
     .then(([rows, fields]) => {
       console.table(rows);
     })
