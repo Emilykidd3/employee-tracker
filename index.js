@@ -107,7 +107,7 @@ const viewAllRoles = function () {
 const viewAllEmployees = function () {
   connection
     .promise()
-    .query("SELECT employees.id, employees.first_name, employees.last_name, roles.title AS job_title, roles.salary, departments.name AS department FROM employees LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id")
+    .query("SELECT employees.id, employees.first_name, employees.last_name, roles.title AS job_title, roles.salary, departments.name AS department, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employees LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id LEFT JOIN employees manager ON manager.id = employees.manager_id")
     .then(([rows, fields]) => {
       console.table(rows);
     })
@@ -215,48 +215,60 @@ const addEmployee = function () {
           value: row.id,
         };
       });
-      // .query("SELECT first_name, id FROM employees")
-      // .then((rows) => {
-      //   const empList = rows[0].map((row) => {
-      //     return {
-      //       name: row.first_name,
-      //       value: row.id
-      //     };
-      //   });
-      inquirer
-        .prompt([
-          {
-            type: "input",
-            name: "first_name",
-            message: "Enter the employee's first name",
-          },
-          {
-            type: "input",
-            name: "last_name",
-            message: "Enter the employee's last name",
-          },
-          {
-            type: "list",
-            name: "role_id",
-            message: "Choose a role for the employee",
-            choices: roleList,
-          },
-          // {
-          //   type: "list",
-          //   name: "manager_id",
-          //   message: "Choose the employee's manager",
-          //   choices: empList
-          // }
-        ])
-        .then((newEmp) => {
-          console.log(newEmp);
-          connection.promise().query("INSERT INTO employees SET ?", newEmp);
-        })
-        .then(() => startQuestion());
-    });
+      inquirer.prompt([
+        {
+          type: "input",
+          name: "first_name",
+          message: "Enter the employee's first name"
+        },
+        {
+          type: "input",
+          name: "last_name",
+          message: "Enter the employee's last name"
+        },
+        {
+          type: "list",
+          name: "role_id",
+          message: "Choose a role for the employee",
+          choices: roleList,
+        },
+      ])
+      .then((res) => {
+        console.log(res);
+        // var { first_name, last_name, role_id } = res
+        connection
+        .promise()
+        .query("SELECT first_name, id FROM employees").then((rows) => {
+          const empList = rows[0].map((row) => {
+            return {
+              name: row.first_name,
+              value: row.id,
+            };
+          });
+          inquirer.prompt([
+            {
+              type: "list",
+              name: "manager_id",
+              message: "Choose the employee's manager",
+              choices: empList,
+            },
+          ])
+          .then((newEmp) => {
+            var employee = {
+              first_name: first_name,
+              last_name: last_name,
+              role_id: role_id,
+              manager_id: newEmp
+            }
+            console.log(newEmp);
+            connection.promise().query("INSERT INTO employees SET ?", employee);
+          })
+          .then(() => startQuestion());
+        });
+    })
+
+    })
 };
-// );
-// };
 
 // if update an employee is chosen
 // NEED TO ADD DYNAMIC CHOICES FOR SECOND Q
@@ -294,10 +306,10 @@ const updateEmployee = function () {
             .promise()
             .query("UPDATE employees SET ? WHERE ?", [
               {
-                role_id: 1,
+                role_id: 1
               },
               {
-                id: updateRole.id,
+                id: updateRole.id
               },
             ])
             .then(() => startQuestion());
