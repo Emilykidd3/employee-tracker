@@ -1,5 +1,6 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
+const cTable = require('console.table');
 // require('dotenv').config('')
 
 const connection = mysql.createConnection({
@@ -68,6 +69,7 @@ const startQuestion = function () {
 
         case "Quit":
           console.log("goodbye!");
+          connection.end();
           break;
 
         default:
@@ -77,7 +79,6 @@ const startQuestion = function () {
 };
 
 // if view all depts is chosen
-// shows dept and id FUNCTION DONE
 const viewAllDepts = function () {
   connection
     .promise()
@@ -90,7 +91,6 @@ const viewAllDepts = function () {
 };
 
 // if view all roles is chosen
-// NEED TO JOIN TO SHOW DEPT?? IS THIS GOOD?!
 const viewAllRoles = function () {
   connection
     .promise()
@@ -105,7 +105,6 @@ const viewAllRoles = function () {
 };
 
 // if view all employees is chosen
-// NEED TO JOIN TO SHOW MANAGER HOW?!?!
 const viewAllEmployees = function () {
   connection
     .promise()
@@ -119,7 +118,6 @@ const viewAllEmployees = function () {
 };
 
 // if add a department is chosen
-// FUNCTION DONE
 const addDept = function () {
   inquirer
     .prompt([
@@ -138,7 +136,6 @@ const addDept = function () {
 };
 
 // if add a role is chosen
-// FUNCTION DONE
 const addRole = function () {
   connection
     .promise()
@@ -177,7 +174,6 @@ const addRole = function () {
 };
 
 // if add an employee is chosen
-// NEED TO ADD DYNAMIC CHOICES FOR LAST Q
 const addEmployee = function () {
   connection
     .promise()
@@ -248,8 +244,6 @@ const addEmployee = function () {
 };
 
 // if update an employee is chosen
-// NEED TO ADD DYNAMIC CHOICES FOR SECOND Q
-// FIX UPDATE FUNCTION
 const updateEmployee = function () {
   connection
     .promise()
