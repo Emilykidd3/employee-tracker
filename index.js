@@ -94,7 +94,9 @@ const viewAllDepts = function () {
 const viewAllRoles = function () {
   connection
     .promise()
-    .query("SELECT roles.id, roles.title, roles.salary, departments.name AS department FROM roles LEFT JOIN  departments ON roles.department_id = departments.id")
+    .query(
+      "SELECT roles.id, roles.title, roles.salary, departments.name AS department FROM roles LEFT JOIN  departments ON roles.department_id = departments.id"
+    )
     //  (select name as department from departments) id, title, salary, department
     .then(([rows, fields]) => {
       console.table(rows);
@@ -107,7 +109,9 @@ const viewAllRoles = function () {
 const viewAllEmployees = function () {
   connection
     .promise()
-    .query("SELECT employees.id, employees.first_name, employees.last_name, roles.title AS job_title, roles.salary, departments.name AS department, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employees LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id LEFT JOIN employees manager ON manager.id = employees.manager_id")
+    .query(
+      "SELECT employees.id, employees.first_name, employees.last_name, roles.title AS job_title, roles.salary, departments.name AS department, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employees LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id LEFT JOIN employees manager ON manager.id = employees.manager_id"
+    )
     .then(([rows, fields]) => {
       console.table(rows);
     })
@@ -166,41 +170,11 @@ const addRole = function () {
           },
         ])
         .then((newRole) => {
-          console.log(newRole);
           connection.promise().query("INSERT INTO roles SET ?", newRole);
         })
         .then(() => startQuestion());
     });
 };
-
-// let roleArr = [];
-// const listOfRoles = function() {
-//   connection
-//     .promise()
-//     .query('SELECT title FROM roles')
-//     .then((rows) => {
-//       const roleList = row[0].map((row) => {
-//         roleArr.push({
-//           value: row.title
-//         })
-//       })
-//     })
-// }
-
-// let empArr = [];
-// const listOfEmps = function() {
-//   connection
-//     .promise()
-//     .query('SELECT first_name, id FROM employees')
-//     .then((rows) => {
-//       const empList = row[0].map((row) => {
-//         empArr.push({
-//           name: row.first_name,
-//           value: row.id
-//         })
-//       })
-//     })
-// }
 
 // if add an employee is chosen
 // NEED TO ADD DYNAMIC CHOICES FOR LAST Q
@@ -215,59 +189,62 @@ const addEmployee = function () {
           value: row.id,
         };
       });
-      inquirer.prompt([
-        {
-          type: "input",
-          name: "first_name",
-          message: "Enter the employee's first name"
-        },
-        {
-          type: "input",
-          name: "last_name",
-          message: "Enter the employee's last name"
-        },
-        {
-          type: "list",
-          name: "role_id",
-          message: "Choose a role for the employee",
-          choices: roleList,
-        },
-      ])
-      .then((res) => {
-        console.log(res);
-        // var { first_name, last_name, role_id } = res
-        connection
-        .promise()
-        .query("SELECT first_name, id FROM employees").then((rows) => {
-          const empList = rows[0].map((row) => {
-            return {
-              name: row.first_name,
-              value: row.id,
-            };
-          });
-          inquirer.prompt([
-            {
-              type: "list",
-              name: "manager_id",
-              message: "Choose the employee's manager",
-              choices: empList,
-            },
-          ])
-          .then((newEmp) => {
-            var employee = {
-              first_name: first_name,
-              last_name: last_name,
-              role_id: role_id,
-              manager_id: newEmp
-            }
-            console.log(newEmp);
-            connection.promise().query("INSERT INTO employees SET ?", employee);
-          })
-          .then(() => startQuestion());
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            name: "first_name",
+            message: "Enter the employee's first name",
+          },
+          {
+            type: "input",
+            name: "last_name",
+            message: "Enter the employee's last name",
+          },
+          {
+            type: "list",
+            name: "role_id",
+            message: "Choose a role for the employee",
+            choices: roleList,
+          },
+        ])
+        .then((res) => {
+          var { first_name, last_name, role_id } = res;
+          connection
+            .promise()
+            .query("SELECT first_name, id FROM employees")
+            .then((rows) => {
+              const empList = rows[0].map((row) => {
+                return {
+                  name: row.first_name,
+                  value: row.id,
+                };
+              });
+              empList.push({ name: "none", value: null })
+              inquirer
+                .prompt([
+                  {
+                    type: "list",
+                    name: "manager_id",
+                    message: "Choose the employee's manager",
+                    choices: empList
+                  },
+                ])
+                .then((newEmp) => {
+                  var employee = {
+                    first_name: first_name,
+                    last_name: last_name,
+                    role_id: role_id,
+                    manager_id: newEmp.manager_id,
+                  };
+                  connection
+                    .promise()
+                    .query("INSERT INTO employees SET ?", employee);
+                })
+                .then(() => startQuestion());
+            });
         });
-    })
-
-    })
+    });
 };
 
 // if update an employee is chosen
@@ -293,26 +270,37 @@ const updateEmployee = function () {
               "Choose the name of the employee you would like to update:",
             choices: empList,
           },
-          // {
-          //   type: "list",
-          //   name: "newEmployeeRole",
-          //   message: "What role would you like them to have?",
-          //   choices: ""
-          // }
         ])
-        .then((updateRole) => {
-          console.log(updateRole);
+        .then((res) => {
+          var employeeId = res.first_name;
           connection
             .promise()
-            .query("UPDATE employees SET ? WHERE ?", [
-              {
-                role_id: 1
-              },
-              {
-                id: updateRole.id
-              },
-            ])
-            .then(() => startQuestion());
+            .query("SELECT title, id FROM roles")
+            .then((rows) => {
+              const roleList = rows[0].map((row) => {
+                return {
+                  name: row.title,
+                  value: row.id,
+                };
+              });
+              inquirer.prompt([
+                {
+                  type: "list",
+                  name: "role_id",
+                  message: "What role would you like them to have?",
+                  choices: roleList,
+                },
+              ])
+              .then((res) => {
+                connection
+                  .promise()
+                  .query("UPDATE employees SET role_id = ? WHERE id = ?", [
+                    1,
+                    employeeId,
+                  ])
+                  .then(() => startQuestion());
+              });
+            });
         });
     });
 };
