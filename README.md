@@ -1,4 +1,4 @@
-# employee-tracker
+# Employee Tracker
 
 ### Description
 This node based command line application allows users to navigate through and populate tables to view and manage departments, roles, and employees for a company. 
